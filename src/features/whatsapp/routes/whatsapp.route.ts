@@ -11,9 +11,9 @@ class WhatsAppRoutes {
   }
 
   public routes(): Router {
-    this.router.get('/webhook', WhatsAppWebhook.prototype.get);
+    this.router.get('/webhook', WhatsAppWebhook.prototype.fetch);
 
-    this.router.post('/webhook', verifyRequestSignature, WhatsAppWebhook.prototype.post);
+    this.router.post('/webhook', verifyRequestSignature, WhatsAppWebhook.prototype.create);
 
     return this.router;
   }

@@ -5,7 +5,7 @@ import Logger from 'bunyan';
 import { config } from '@root/config';
 import { BadRequestError, ForbiddenError, ServerError } from './error-handler';
 
-const log: Logger = config.createLogger('whatsapp signature verification');
+const log: Logger = config.createLogger('Whatsapp signature verification');
 
 export const verifyRequestSignature = (req: Request, res: Response, next: NextFunction) => {
   if (req.path !== '/whatsapp/webhook') {

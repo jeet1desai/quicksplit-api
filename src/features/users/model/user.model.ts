@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema<any>(
     countryCode: { type: String },
     phoneNumber: { type: String, required: true, unique: true, index: true },
     email: { type: String, index: true, sparse: true, lowercase: true, trim: true },
-    password: { type: String, required: true },
+    password: { type: String },
     isActive: { type: Boolean, default: true },
     lastActive: { type: Date, default: Date.now },
     preferences: {
@@ -31,8 +31,10 @@ const userSchema = new mongoose.Schema<any>(
 );
 
 userSchema.pre('save', async function (this: any, next: () => void) {
-  const hashedPassword: string = await hash(this.password as string, SALT_ROUND);
-  this.password = hashedPassword;
+  if (this.password) {
+    const hashedPassword: string = await hash(this.password as string, SALT_ROUND);
+    this.password = hashedPassword;
+  }
   this.updatedAt = Date.now();
   next();
 });

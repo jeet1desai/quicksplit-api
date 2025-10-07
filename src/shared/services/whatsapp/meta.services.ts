@@ -1,0 +1,71 @@
+import { config } from '@root/config';
+import axios from 'axios';
+
+import Logger from 'bunyan';
+
+class MetaApiService {
+  private accessToken: string;
+  private phoneNumberId: string;
+  private baseURL: string;
+
+  private log: Logger = config.createLogger('Meta service');
+
+  constructor() {
+    this.accessToken = config.META_ACCESS_TOKEN!;
+    this.phoneNumberId = config.META_PHONE_NUMBER_ID!;
+    this.baseURL = 'https://graph.facebook.com/v23.0';
+  }
+
+  extractPhoneNumber(whatsappId: string): string {
+    const match = whatsappId.match(/^(\d+)@/);
+    return match ? match[1] : whatsappId;
+  }
+
+  async sendMessage(to: any, message: any, recipient_type = 'individual', messageType = 'text') {
+    try {
+      const payload = { messaging_product: 'whatsapp', to, recipient_type, type: messageType, [messageType]: { body: message } };
+      const response = await axios.post(`${this.baseURL}/${this.phoneNumberId}/messages`, payload, {
+        headers: { Authorization: `Bearer ${this.accessToken}`, 'Content-Type': 'application/json' }
+      });
+      return response.data;
+    } catch (error: any) {
+      this.log.error('Error sending message:', error.response?.data || error.message);
+    }
+  }
+
+  async markMessageAsRead(messageId: string) {
+    try {
+      const payload = { messaging_product: 'whatsapp', status: 'read', message_id: messageId };
+      const response = await axios.post(`${this.baseURL}/${this.phoneNumberId}/messages`, payload, {
+        headers: { Authorization: `Bearer ${this.accessToken}`, 'Content-Type': 'application/json' }
+      });
+      return response.data;
+    } catch (error: any) {
+      this.log.error('Error marking message as read:', error.message);
+    }
+  }
+
+  async getGroupInfo(groupId: string) {
+    try {
+      const response = await axios.get(`${this.baseURL}/${groupId}`, {
+        headers: { Authorization: `Bearer ${this.accessToken}` }
+      });
+      return response.data;
+    } catch (error: any) {
+      this.log.error('Error getting group info:', error.message);
+    }
+  }
+
+  async getGroupMembers(groupId: string) {
+    try {
+      const response = await axios.get(`${this.baseURL}/${groupId}/participants`, {
+        headers: { Authorization: `Bearer ${this.accessToken}` }
+      });
+      return response.data;
+    } catch (error: any) {
+      this.log.error('Error getting group members:', error.message);
+    }
+  }
+}
+
+export const metaApiService: MetaApiService = new MetaApiService();

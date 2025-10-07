@@ -3,7 +3,7 @@ import Logger from 'bunyan';
 
 import { config } from '@root/config';
 
-const log: Logger = config.createLogger('database');
+const log: Logger = config.createLogger('Database');
 
 export default async () => {
   const connect = async () => {

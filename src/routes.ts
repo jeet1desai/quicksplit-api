@@ -15,7 +15,7 @@ export default (app: express.Application): void => {
 
     app.use(BASE_PATH, authRoutes.routes());
     app.use(BASE_PATH, onboardRoutes.routes());
-    
+
     app.use('/whatsapp', whatsAppRoutes.routes());
   };
   routes();

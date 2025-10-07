@@ -42,18 +42,28 @@ class Config {
   private readonly DEFAULT_COOKIE_SECURE = 'false';
   private readonly DEFAULT_COOKIE_DOMAIN = 'localhost';
 
+  public GOOGLE_GEMINI_API_KEY: string | undefined;
+  public GEMINI_MODEL: string | undefined;
+
   public META_ACCESS_TOKEN: string | undefined;
   public META_VERIFY_TOKEN: string | undefined;
   public WHATSAPP_API_VERSION: string | undefined;
   public META_PHONE_NUMBER_ID: string | undefined;
   public META_WEBHOOK_URL: string | undefined;
 
+  public WEB_BASE_URL: string | undefined;
+
   private readonly DEFAULT_META_ACCESS_TOKEN =
     'EAAS5m971FCkBPpzFj7cI5OgkYcZBZBdIlcGskbHNu6cUSSVON5o7ZB22EEDRjZAAC40dTCWYx4KwzudXQUGRUbTOlo1F2bZA1H1t5tYiVV3w15CKfZCU2vTVQIsOpnZCkv4vuKYWjgBgZCFxTRTHPV5SiK1Cfx97gfIYnBZAZCCKY28Ml1nEyLhPqb4D1M8GgZBZCAbiZCY0h6OGG3pJwdwTnNZCJbjHL9wd8td01bUDwgOzyzrosZD';
   private readonly DEFAULT_META_VERIFY_TOKEN = '6525834d-fc94-4858-bbde-71fda692f0d4';
-  private readonly DEFAULT_WHATSAPP_API_VERSION = 'v17.0';
+  private readonly DEFAULT_WHATSAPP_API_VERSION = 'v19.0';
   private readonly DEFAULT_META_PHONE_NUMBER_ID = '802871279581464';
-  private readonly DEFAULT_META_WEBHOOK_URL = 'https://loose-news-wish.loca.lt/webhook';
+  private readonly DEFAULT_META_WEBHOOK_URL = 'https://localhost:3000/whatsapp/webhook';
+
+  private readonly DEFAULT_GOOGLE_GEMINI_API_KEY = 'AIzaSyCZ1WoJhtmY9ZJz7QjG4bYIu4Df2jgVBTY';
+  private readonly DEFAULT_GEMINI_MODEL = 'gemini-2.0-flash';
+
+  private readonly DEFAULT_WEB_BASE_URL = 'http://localhost:5173';
 
   constructor() {
     this.NODE_ENV = process.env.NODE_ENV || this.DEFAULT_NODE_ENV;
@@ -80,6 +90,11 @@ class Config {
 
     this.COOKIE_SECURE = process.env.COOKIE_SECURE || this.DEFAULT_COOKIE_SECURE;
     this.COOKIE_DOMAIN = process.env.COOKIE_DOMAIN || this.DEFAULT_COOKIE_DOMAIN;
+
+    this.GOOGLE_GEMINI_API_KEY = process.env.GOOGLE_GEMINI_API_KEY || this.DEFAULT_GOOGLE_GEMINI_API_KEY;
+    this.GEMINI_MODEL = process.env.GEMINI_MODEL || this.DEFAULT_GEMINI_MODEL;
+
+    this.WEB_BASE_URL = process.env.WEB_BASE_URL || this.DEFAULT_WEB_BASE_URL;
   }
 
   public createLogger(name: string): bunyan {

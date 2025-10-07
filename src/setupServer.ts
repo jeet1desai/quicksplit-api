@@ -17,7 +17,7 @@ import { CustomError, IErrorResponse } from '@shared/globals/helpers/error-handl
 import { rateLimiter } from '@shared/globals/helpers/rate-limiter';
 
 const SERVER_PORT = config.PORT!;
-const log: Logger = config.createLogger('server');
+const log: Logger = config.createLogger('Server');
 
 export class Server {
   private app: express.Application;
