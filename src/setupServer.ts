@@ -86,6 +86,7 @@ export class Server {
   }
 
   private standardMiddleware(app: express.Application): void {
+    app.set('trust proxy', 1);
     app.use(compression());
     app.use(express.json({ limit: '50mb' }));
     app.use(express.urlencoded({ limit: '50mb', extended: true }));
