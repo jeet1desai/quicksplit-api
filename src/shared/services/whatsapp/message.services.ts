@@ -73,6 +73,11 @@ class MessageServices {
             );
             return;
           }
+          if (!user.onboarding?.isVerified) {
+            const link = `${config.WEB_BASE_URL}/signup?phone=${encodeURIComponent(phoneNumber)}`;
+            await metaApiService.sendMessage(from, `Let's get you verified first.\nSignup: ${link}\nThen send me verification code.`);
+            return;
+          }
           await metaApiService.sendMessage(from, `Hey there! Welcome back to QuickSplit.\n\nYou can now log spends, check balance, and more.`);
           return;
         }
@@ -89,7 +94,7 @@ class MessageServices {
         }
 
         if (!user.onboarding?.isVerified) {
-          const link = `${process.env.WEB_BASE_URL || 'https://your-site.com'}/signup?phone=${encodeURIComponent(phoneNumber)}`;
+          const link = `${config.WEB_BASE_URL}/signup?phone=${encodeURIComponent(phoneNumber)}`;
           await metaApiService.sendMessage(from, `Let's get you verified first.\nSignup: ${link}\nThen send me verification code.`);
           return;
         }
