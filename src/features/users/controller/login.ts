@@ -3,8 +3,7 @@ import HTTP_STATUS from 'http-status-codes';
 
 import { joiValidation } from '@shared/globals/decorators/joi-validation';
 import { userService } from '@shared/services/db/user.services';
-import { NotFoundError, ServerError } from '@shared/globals/helpers/error-handler';
-import { SignUp } from '@features/users/controller/signup';
+import { CustomError, NotFoundError, ServerError } from '@shared/globals/helpers/error-handler';
 import { signinSchema } from '@features/users/schema/signin.schema';
 import { generateTokens, getTokenCookieOptions } from '@shared/globals/helpers/token';
 import { tokenService } from '@shared/services/db/token.services';
@@ -31,10 +30,11 @@ export class Login {
       res.cookie('refresh_token', refreshToken, getTokenCookieOptions());
       res.cookie('access_token', accessToken, getTokenCookieOptions());
 
-      return res.status(HTTP_STATUS.OK).json({ code: HTTP_STATUS.OK, status: 'success', user: user, message: 'User registered successfully' });
+      return res.status(HTTP_STATUS.OK).json({ code: HTTP_STATUS.OK, status: 'success', user: user, message: 'User logged in successfully' });
     } catch (error) {
-      console.error('Login error:', error);
-      throw new ServerError('Failed to login');
+      const code = error instanceof CustomError ? error.code : HTTP_STATUS.INTERNAL_SERVER_ERROR;
+      const message = error instanceof Error ? error.message : 'An error occurred while signing in';
+      return res.status(code).json({ code, status: 'error', message });
     }
   }
 }

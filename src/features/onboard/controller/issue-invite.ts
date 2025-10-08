@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import crypto from 'crypto';
 import HTTP_STATUS from 'http-status-codes';
 
-import { NotFoundError, ServerError } from '@shared/globals/helpers/error-handler';
+import { CustomError, NotFoundError, ServerError } from '@shared/globals/helpers/error-handler';
 import { userService } from '@shared/services/db/user.services';
 import { inviteService } from '@shared/services/db/invite.services';
 
@@ -30,8 +30,9 @@ export class IssueInvite {
 
       return res.status(HTTP_STATUS.OK).json({ code: HTTP_STATUS.OK, status: 'success', invite: invite, message: 'Invite created successfully' });
     } catch (error) {
-      console.error('Issue invite error:', error);
-      throw new ServerError('Failed to issue invite');
+      const code = error instanceof CustomError ? error.code : HTTP_STATUS.INTERNAL_SERVER_ERROR;
+      const message = error instanceof Error ? error.message : 'An error occurred while signing in';
+      return res.status(code).json({ code, status: 'error', message });
     }
   }
 

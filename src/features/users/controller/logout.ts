@@ -7,13 +7,14 @@ import { config } from '@root/config';
 
 export class Logout {
   public async delete(req: Request, res: Response): Promise<void> {
-    const { refreshToken } = req.cookies;
+    const { refresh_token } = req.cookies;
 
-    if (refreshToken) {
+    if (refresh_token) {
       try {
-        const decoded = jwt.verify(refreshToken, config.JWT_SECRET!) as any;
+        const decoded = jwt.verify(refresh_token, config.JWT_SECRET!) as any;
         if (decoded.jti) {
           await tokenService.updateTokenId(decoded.jti);
+          await tokenService.removeTokens(decoded.userId);
         }
       } catch (error) {
         throw new ServerError('Internal server error');

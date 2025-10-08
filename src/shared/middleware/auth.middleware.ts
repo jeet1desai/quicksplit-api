@@ -16,13 +16,13 @@ declare global {
 
 export const authMiddleware = async (req: Request, _res: Response, next: NextFunction) => {
   try {
-    const { refreshToken } = req.cookies;
+    const { refresh_token } = req.cookies;
 
-    if (!refreshToken) {
+    if (!refresh_token) {
       throw new NotAuthorizedError('No token provided');
     }
 
-    const decoded = jwt.verify(refreshToken, config.JWT_SECRET!) as { userId: string };
+    const decoded = jwt.verify(refresh_token, config.JWT_SECRET!) as { userId: string };
     if (!decoded.userId) {
       throw new NotAuthorizedError('Invalid token');
     }

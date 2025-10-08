@@ -9,8 +9,12 @@ class TokenServices {
     return (await TokenModel.findByIdAndUpdate(id, { blacklisted: true }).exec()) as any;
   }
 
-  public async findByUserId(decoded: any): Promise<any> {
+  public async findByDecoded(decoded: any): Promise<any> {
     return (await TokenModel.findOne({ _id: decoded.jti, userId: decoded.userId, type: 'refresh', blacklisted: false }).exec()) as any;
+  }
+
+  public async findByUserId(userId: any): Promise<any> {
+    return (await TokenModel.findOne({ userId: userId, blacklisted: false }).exec()) as any;
   }
 
   public async createToken(tokenId: Types.ObjectId, userId: Types.ObjectId | string, ip: any, userAgent: string, refreshToken: string): Promise<any> {
@@ -23,6 +27,10 @@ class TokenServices {
       createdByIp: ip,
       userAgent
     });
+  }
+
+  public async removeTokens(userId: Types.ObjectId | string): Promise<any> {
+    return (await TokenModel.deleteMany({ userId }).exec()) as any;
   }
 }
 

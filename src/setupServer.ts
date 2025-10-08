@@ -7,6 +7,7 @@ import compression from 'compression';
 import cookieSession from 'cookie-session';
 import HTTP_STATUS from 'http-status-codes';
 import Logger from 'bunyan';
+import cookieParser from 'cookie-parser';
 import apiStats from 'swagger-stats';
 
 import 'express-async-errors';
@@ -87,6 +88,7 @@ export class Server {
 
   private standardMiddleware(app: express.Application): void {
     app.set('trust proxy', 1);
+    app.use(cookieParser());
     app.use(compression());
     app.use(express.json({ limit: '50mb' }));
     app.use(express.urlencoded({ limit: '50mb', extended: true }));
