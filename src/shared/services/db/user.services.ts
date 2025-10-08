@@ -18,7 +18,7 @@ class UserServices {
 
   public async getUserByPhone(countryCode: string, phoneNumber: string): Promise<any> {
     try {
-      return await UserModel.findOne({ countryCode: countryCode, phoneNumber: phoneNumber }).setOptions({ maxTimeMS: 5000 }).lean().exec();
+      return await UserModel.findOne({ countryCode: countryCode, phoneNumber: phoneNumber }).setOptions({ maxTimeMS: 5000 });
     } catch (error) {
       log.error(`Error finding user by phone ${countryCode} ${phoneNumber}:`, error);
       throw error;

@@ -13,11 +13,11 @@ class TokenServices {
     return (await TokenModel.findOne({ _id: decoded.jti, userId: decoded.userId, type: 'refresh', blacklisted: false }).exec()) as any;
   }
 
-  public async createToken(tokenId: Types.ObjectId, userId: Types.ObjectId | string, ip: any, userAgent: string): Promise<any> {
+  public async createToken(tokenId: Types.ObjectId, userId: Types.ObjectId | string, ip: any, userAgent: string, refreshToken: string): Promise<any> {
     return await TokenModel.create({
       _id: tokenId,
       userId,
-      token: '',
+      token: refreshToken,
       type: 'refresh',
       expires: new Date(Date.now() + REFRESH_TOKEN_COOKIE_EXPIRY),
       createdByIp: ip,

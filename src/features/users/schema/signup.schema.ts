@@ -10,6 +10,9 @@ const signupSchema: ObjectSchema = Joi.object().keys({
   }),
   phoneNumber: Joi.string().required().messages({
     'string.empty': 'Phone number is a required field'
+  }),
+  name: Joi.string().required().messages({
+    'string.empty': 'Name is a required field'
   })
 });
 
