@@ -6,6 +6,8 @@ import { userService } from '@shared/services/db/user.services';
 import { NotFoundError, ServerError } from '@shared/globals/helpers/error-handler';
 import { SignUp } from '@features/users/controller/signup';
 import { signinSchema } from '@features/users/schema/signin.schema';
+import { generateTokens, getTokenCookieOptions } from '@shared/globals/helpers/token';
+import { tokenService } from '@shared/services/db/token.services';
 
 export class Login {
   @joiValidation(signinSchema)
@@ -23,11 +25,11 @@ export class Login {
         throw new NotFoundError('Invalid credentials');
       }
 
-      const { accessToken, refreshToken, refreshTokenId } = await SignUp.prototype.generateTokens(user._id);
-      await SignUp.prototype.storeRefreshToken(refreshTokenId, user._id, req.ip, req.headers['user-agent'] || '');
+      const { accessToken, refreshToken, refreshTokenId } = await generateTokens(user._id);
+      await tokenService.createToken(refreshTokenId, user._id, req.ip, req.headers['user-agent'] || '', refreshToken);
 
-      res.cookie('refresh_token', refreshToken, SignUp.prototype.getTokenCookieOptions());
-      res.cookie('access_token', accessToken, SignUp.prototype.getTokenCookieOptions());
+      res.cookie('refresh_token', refreshToken, getTokenCookieOptions());
+      res.cookie('access_token', accessToken, getTokenCookieOptions());
 
       return res.status(HTTP_STATUS.OK).json({ code: HTTP_STATUS.OK, status: 'success', user: user, message: 'User registered successfully' });
     } catch (error) {

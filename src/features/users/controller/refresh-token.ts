@@ -6,6 +6,7 @@ import { NotAuthorizedError, ServerError } from '@shared/globals/helpers/error-h
 import { SignUp } from '@features/users/controller/signup';
 import { tokenService } from '@shared/services/db/token.services';
 import { config } from '@root/config';
+import { generateTokens, getTokenCookieOptions } from '@shared/globals/helpers/token';
 
 export class RefreshToken {
   public async update(req: Request, res: Response) {
@@ -26,13 +27,13 @@ export class RefreshToken {
         throw new NotAuthorizedError('Invalid refresh token');
       }
 
-      const { accessToken, refreshToken: newRefreshToken, refreshTokenId } = await SignUp.prototype.generateTokens(decoded.userId);
+      const { accessToken, refreshToken: newRefreshToken, refreshTokenId } = await generateTokens(decoded.userId);
 
       await tokenService.updateTokenId(tokenDoc._id);
-      await SignUp.prototype.storeRefreshToken(refreshTokenId, decoded.userId, req.ip, req.headers['user-agent'] || '');
+      await tokenService.createToken(refreshTokenId, decoded.userId, req.ip, req.headers['user-agent'] || '', newRefreshToken);
 
-      res.cookie('refresh_token', newRefreshToken, SignUp.prototype.getTokenCookieOptions());
-      res.cookie('access_token', accessToken, SignUp.prototype.getTokenCookieOptions());
+      res.cookie('refresh_token', newRefreshToken, getTokenCookieOptions());
+      res.cookie('access_token', accessToken, getTokenCookieOptions());
 
       return res.status(200).json({ code: HTTP_STATUS.CREATED, status: 'success', data: { accessToken, refreshToken: newRefreshToken } });
     } catch (error) {
