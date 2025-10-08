@@ -23,6 +23,8 @@ class MessageServices {
 
       const isGroupMessage = metadata?.type === 'group';
 
+      const phone = phoneFormat(phoneNumber);
+      const getUser = await userService.getUserByPhone(phone?.countryCode?.toString() || '', phone?.nationalNumber?.toString() || '');
       const user = await userService.getUserOrCreate(phoneNumber);
 
       let aiAnalysis: any;
@@ -47,14 +49,14 @@ class MessageServices {
       if (isGroupMessage) {
         await this.handleGroupMessage(message, metadata, phoneNumber, user, aiAnalysis);
       } else {
-        await this.handlePrivateMessage(message, phoneNumber, user, aiAnalysis);
+        await this.handlePrivateMessage(message, phoneNumber, user, aiAnalysis, Boolean(getUser));
       }
     } catch (error) {
       this.log.error('Error processing message', error);
     }
   }
 
-  private async handlePrivateMessage(message: any, phoneNumber: string, user: any, aiAnalysis: any) {
+  private async handlePrivateMessage(message: any, phoneNumber: string, user: any, aiAnalysis: any, presentUser: any) {
     try {
       const { from, text } = message;
       console.log(user);
@@ -63,11 +65,15 @@ class MessageServices {
       try {
         const maybeStart = (text.body || '').trim().toLowerCase();
         if (maybeStart === 'hi' || maybeStart === 'hello' || maybeStart === 'start') {
-          const link = `${config.WEB_BASE_URL}/signup?phone=${encodeURIComponent(phoneNumber)}`;
-          await metaApiService.sendMessage(
-            from,
-            `Hey there! Welcome to QuickSplit.\n\nTo get started, tap the signup link: ${link}\n\nAfter signup, send me verification code to verify.`
-          );
+          if (!presentUser) {
+            const link = `${config.WEB_BASE_URL}/signup?phone=${encodeURIComponent(phoneNumber)}`;
+            await metaApiService.sendMessage(
+              from,
+              `Hey there! Welcome to QuickSplit.\n\nTo get started, tap the signup link: ${link}\n\nAfter signup, send me verification code to verify.`
+            );
+            return;
+          }
+          await metaApiService.sendMessage(from, `Hey there! Welcome back to QuickSplit.\n\nYou can now log spends, check balance, and more.`);
           return;
         }
 
