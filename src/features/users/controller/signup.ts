@@ -19,7 +19,7 @@ export class SignUp {
     let user = null;
 
     try {
-      user = await userService.getUserByPhone(countryCode, phoneNumber);
+      user = await userService.getUserByPhone(countryCode + phoneNumber);
 
       if (user) {
         user.password = password;

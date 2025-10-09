@@ -14,7 +14,7 @@ export class Login {
     const { countryCode, phoneNumber, password } = req.body;
 
     try {
-      const user = await userService.getUserByPhone(countryCode, phoneNumber);
+      const user = await userService.getUserByPhone(countryCode + phoneNumber);
       if (!user) {
         throw new NotFoundError('User not found');
       }
