@@ -11,7 +11,8 @@ class OnboardRoutes {
   }
 
   public routes(): Router {
-    this.router.post('/users/:userId/invite', authMiddleware, IssueInvite.prototype.create);
+    this.router.post('/users/invite', authMiddleware, IssueInvite.prototype.create);
+    this.router.get('/users/invite', authMiddleware, IssueInvite.prototype.read);
     return this.router;
   }
 }

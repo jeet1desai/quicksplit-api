@@ -7,6 +7,7 @@ class InviteServices {
   }
 
   public async verifyInviteCode(id: string, code: string): Promise<any> {
+    console.log(id, code);
     const user = await userService.getUserById(id);
     if (!user) {
       return { ok: false, message: 'User not found' };
@@ -17,17 +18,12 @@ class InviteServices {
       return { ok: false, message: 'Invite not found' };
     }
 
-    const now = new Date();
-    if (invite.expiresAt < now) {
-      return { ok: false, reason: 'EXPIRED' };
-    }
-
     if ((code || '').trim().toUpperCase() !== invite.inviteCode) {
       return { ok: false, reason: 'MISMATCH' };
     }
 
     invite.isVerified = true;
-    invite.usedAt = now;
+    invite.usedAt = new Date();
     await invite.save();
     return { ok: true, user, invite };
   }

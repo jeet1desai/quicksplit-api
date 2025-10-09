@@ -84,6 +84,11 @@ class MessageServices {
 
         const maybeCode = (text.body || '').trim().toUpperCase();
         if (/^[A-Z0-9a-z]{6,8}$/.test(maybeCode)) {
+          const invite = await inviteService.getInviteByUser(user._id);
+          if (invite && invite.isVerified) {
+            await metaApiService.sendMessage(from, "You're already verified. You can now log spends, check balance, and more.");
+            return;
+          }
           const result = await inviteService.verifyInviteCode(user._id, maybeCode);
           if (result.ok) {
             await metaApiService.sendMessage(from, "You're all set! ✅ Your account is verified. You can now log spends, check balance, and more.");

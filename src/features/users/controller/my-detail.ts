@@ -1,8 +1,7 @@
-import { ServerError, NotFoundError, CustomError } from '@shared/globals/helpers/error-handler';
+import { NotFoundError, CustomError } from '@shared/globals/helpers/error-handler';
 import { Request, Response } from 'express';
 import HTTP_STATUS from 'http-status-codes';
 import { userService } from '@shared/services/db/user.services';
-import { tokenService } from '@shared/services/db/token.services';
 
 export class MyDetail {
   public async read(req: Request, res: Response) {
@@ -15,13 +14,6 @@ export class MyDetail {
       const user = await userService.getUserById(userId);
       if (!user) {
         throw new NotFoundError('User not found');
-      }
-
-      const { refresh_token } = req.cookies;
-
-      const tokenDoc = await tokenService.findByUserId(userId);
-      if (!tokenDoc || tokenDoc.token !== refresh_token) {
-        throw new NotFoundError('Invalid refresh token');
       }
 
       const { password, ...userWithoutPassword } = user;
