@@ -16,11 +16,19 @@ class UserServices {
     }
   }
 
-  public async getUserByPhone(countryCode: string, phoneNumber: string): Promise<any> {
+  public async getUserByPhone(phoneNumber: string): Promise<any> {
+    const phone = phoneFormat(phoneNumber);
+    if (!phone || !phone.countryCode || !phone.nationalNumber) {
+      throw new Error('Invalid phone number format');
+    }
+
+    const countryCode = phone.countryCode.toString();
+    const nationalNumber = phone.nationalNumber.toString();
+
     try {
-      return await UserModel.findOne({ countryCode: countryCode, phoneNumber: phoneNumber }).setOptions({ maxTimeMS: 5000 });
+      return await UserModel.findOne({ countryCode, phoneNumber: nationalNumber }).setOptions({ maxTimeMS: 5000 });
     } catch (error) {
-      log.error(`Error finding user by phone ${countryCode} ${phoneNumber}:`, error);
+      log.error(`Error finding user by phone ${countryCode} ${nationalNumber}:`, error);
       throw error;
     }
   }
@@ -44,7 +52,7 @@ class UserServices {
       const countryCode = phone.countryCode.toString();
       const nationalNumber = phone.nationalNumber.toString();
 
-      const user = await this.getUserByPhone(countryCode, nationalNumber);
+      const user = await this.getUserByPhone(phoneNumber);
       if (user) {
         return user;
       }

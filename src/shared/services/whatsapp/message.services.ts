@@ -23,9 +23,52 @@ class MessageServices {
 
       const isGroupMessage = metadata?.type === 'group';
 
-      const phone = phoneFormat(phoneNumber);
-      const getUser = await userService.getUserByPhone(phone?.countryCode?.toString() || '', phone?.nationalNumber?.toString() || '');
-      const user = await userService.getUserOrCreate(phoneNumber);
+      let user = await userService.getUserByPhone(phoneNumber);
+
+      const maybeStart = (text.body || '').trim().toLowerCase();
+      if (maybeStart === 'hi' || maybeStart === 'hello' || maybeStart === 'start') {
+        if (!user) {
+          user = await userService.getUserOrCreate(phoneNumber);
+          const link = `${config.WEB_BASE_URL}/signup?phone=${encodeURIComponent(phoneNumber)}`;
+          await metaApiService.sendMessage(
+            from,
+            `Hey there! Welcome to QuickSplit.\n\nTo get started, tap the signup link: ${link}\n\nAfter signup, send me verification code to verify.`
+          );
+        }
+
+        const invite = await inviteService.getInviteByUser(user._id);
+        if (!invite || !invite.isVerified) {
+          const link = `${config.WEB_BASE_URL}/signup?phone=${encodeURIComponent(phoneNumber)}`;
+          await metaApiService.sendMessage(from, `Let's get you verified first.\n\nSignup: ${link}\nThen send me verification code.`);
+          return;
+        }
+
+        await metaApiService.sendMessage(from, `Hey there! Welcome back to QuickSplit.\n\nYou can now log spends, check balance, and more.`);
+        return;
+      }
+
+      const maybeCode = (text.body || '').trim().toUpperCase();
+      if (/^[A-Z0-9a-z]{6,8}$/.test(maybeCode)) {
+        const invite = await inviteService.getInviteByUser(user._id);
+        if (invite && invite.isVerified) {
+          await metaApiService.sendMessage(from, "You're already verified. You can now log spends, check balance, and more.");
+          return;
+        }
+        const result = await inviteService.verifyInviteCode(user._id, maybeCode);
+        if (result.ok) {
+          await metaApiService.sendMessage(from, "You're all set! ✅ Your account is verified. You can now log spends, check balance, and more.");
+          return;
+        }
+        await metaApiService.sendMessage(from, "That code didn't work. Please re-check and send the 7-character code from the website.");
+        return;
+      }
+
+      const invite = await inviteService.getInviteByUser(user._id);
+      if (!invite || !invite.isVerified) {
+        const link = `${config.WEB_BASE_URL}/signup?phone=${encodeURIComponent(phoneNumber)}`;
+        await metaApiService.sendMessage(from, `Let's get you verified first.\nSignup: ${link}\nThen send me verification code.`);
+        return;
+      }
 
       let aiAnalysis: any;
       try {
@@ -49,100 +92,33 @@ class MessageServices {
       if (isGroupMessage) {
         await this.handleGroupMessage(message, metadata, phoneNumber, user, aiAnalysis);
       } else {
-        await this.handlePrivateMessage(message, phoneNumber, user, aiAnalysis, Boolean(getUser));
+        await this.handlePrivateMessage(message, phoneNumber, user, aiAnalysis);
       }
     } catch (error) {
       this.log.error('Error processing message', error);
     }
   }
 
-  private async handlePrivateMessage(message: any, phoneNumber: string, user: any, aiAnalysis: any, presentUser: any) {
+  private async handlePrivateMessage(message: any, phoneNumber: string, user: any, aiAnalysis: any) {
     try {
       const { from, text } = message;
-      console.log(user);
 
       if (!text?.body) return;
       try {
-        const maybeStart = (text.body || '').trim().toLowerCase();
-        if (maybeStart === 'hi' || maybeStart === 'hello' || maybeStart === 'start') {
-          if (!presentUser) {
-            const link = `${config.WEB_BASE_URL}/signup?phone=${encodeURIComponent(phoneNumber)}`;
-            await metaApiService.sendMessage(
-              from,
-              `Hey there! Welcome to QuickSplit.\n\nTo get started, tap the signup link: ${link}\n\nAfter signup, send me verification code to verify.`
-            );
-            return;
-          }
-          if (!user.onboarding?.isVerified) {
-            const link = `${config.WEB_BASE_URL}/signup?phone=${encodeURIComponent(phoneNumber)}`;
-            await metaApiService.sendMessage(from, `Let's get you verified first.\nSignup: ${link}\nThen send me verification code.`);
-            return;
-          }
-          await metaApiService.sendMessage(from, `Hey there! Welcome back to QuickSplit.\n\nYou can now log spends, check balance, and more.`);
-          return;
-        }
-
-        const maybeCode = (text.body || '').trim().toUpperCase();
-        if (/^[A-Z0-9a-z]{6,8}$/.test(maybeCode)) {
-          const invite = await inviteService.getInviteByUser(user._id);
-          if (invite && invite.isVerified) {
-            await metaApiService.sendMessage(from, "You're already verified. You can now log spends, check balance, and more.");
-            return;
-          }
-          const result = await inviteService.verifyInviteCode(user._id, maybeCode);
-          if (result.ok) {
-            await metaApiService.sendMessage(from, "You're all set! ✅ Your account is verified. You can now log spends, check balance, and more.");
-            return;
-          }
-          await metaApiService.sendMessage(from, "That code didn't work. Please re-check and send the 7-character code from the website.");
-          return;
-        }
-
-        if (!user.onboarding?.isVerified) {
-          const link = `${config.WEB_BASE_URL}/signup?phone=${encodeURIComponent(phoneNumber)}`;
-          await metaApiService.sendMessage(from, `Let's get you verified first.\nSignup: ${link}\nThen send me verification code.`);
-          return;
-        }
-
         switch (aiAnalysis.intent) {
           case 'balance_check':
-            break;
           case 'settlement':
-            break;
-
           case 'settlement_confirm':
-            break;
-
           case 'full_settlement':
-            break;
-
           case 'selective_settlement':
-            break;
-
           case 'partial_settlement':
-            break;
-
           case 'group_settlement':
-            break;
-
           case 'breakdown':
-            break;
-
           case 'export':
-            break;
-
           case 'consent_response':
-            break;
-
           case 'settlement_consent_response':
-            break;
-
           case 'help':
-            break;
-
           case 'general':
-            break;
-
           default:
             await metaApiService.sendMessage(
               from,
