@@ -40,10 +40,10 @@ class MessageServices {
         const code = maybeStart.split('join:')[1].trim();
         const group = await groupService.joinGroupByCode(code, user);
         if (!group) {
-          await metaApiService.sendMessage(from, `Group not found.`);
+          await withTypingIndicator(from, messageId, () => metaApiService.sendMessage(from, `Group not found.`));
           return;
         }
-        await metaApiService.sendMessage(from, `You have joined the group ${group.name}.`);
+        await withTypingIndicator(from, messageId, () => metaApiService.sendMessage(from, `You have joined the group ${group.name}.`));
         return;
       }
 
