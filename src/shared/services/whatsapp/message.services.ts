@@ -5,6 +5,7 @@ import { metaApiService } from './meta.services';
 import { userService } from '../db/user.services';
 import { analyzeService } from '../gemini/analyze.services';
 import { groupService } from '../db/group.services';
+import { withTypingIndicator } from '@shared/middleware/message.middleware';
 
 class MessageServices {
   private log: Logger = config.createLogger('Whatsapp service');
@@ -23,11 +24,11 @@ class MessageServices {
       if (maybeStart === 'hi' || maybeStart === 'hello' || maybeStart === 'start') {
         if (!user) {
           user = await userService.getUserOrCreate(phoneNumber);
-          await metaApiService.sendMessage(from, `Hey there! Welcome to QuickSplit.`);
+          await withTypingIndicator(from, () => metaApiService.sendMessage(from, `Hey there! Welcome to QuickSplit.`));
           return;
         }
 
-        await metaApiService.sendMessage(from, `Hey there! Welcome back to QuickSplit.`);
+        await withTypingIndicator(from, () => metaApiService.sendMessage(from, `Hey there! Welcome back to QuickSplit.`));
         return;
       }
 
@@ -63,7 +64,7 @@ class MessageServices {
         };
       }
 
-      await this.handlePrivateMessage(message, phoneNumber, user, aiAnalysis);
+      await withTypingIndicator(from, () => this.handlePrivateMessage(message, phoneNumber, user, aiAnalysis));
     } catch (error) {
       this.log.error('Error processing message', error);
     }

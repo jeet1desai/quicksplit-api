@@ -44,6 +44,31 @@ class MetaApiService {
       this.log.error('Error marking message as read:', error.message);
     }
   }
+
+  async sendTypingIndicator(to: string) {
+    try {
+      const payload = { messaging_product: 'whatsapp', to, type: 'typing', typing: { action: 'typing_on' } };
+      const response = await axios.post(`${this.baseURL}/${this.phoneNumberId}/messages`, payload, {
+        headers: { Authorization: `Bearer ${this.accessToken}`, 'Content-Type': 'application/json' }
+      });
+      return response.data;
+    } catch (error: any) {
+      console.error('Error sending typing indicator:', error.response?.data || error.message);
+    }
+  }
+
+  async stopTypingIndicator(to: string) {
+    try {
+      const payload = { messaging_product: 'whatsapp', to, type: 'typing', typing: { action: 'typing_off' } };
+
+      const response = await axios.post(`${this.baseURL}/${this.phoneNumberId}/messages`, payload, {
+        headers: { Authorization: `Bearer ${this.accessToken}`, 'Content-Type': 'application/json' }
+      });
+      return response.data;
+    } catch (error: any) {
+      console.error('Error stopping typing indicator:', error.response?.data || error.message);
+    }
+  }
 }
 
 export const metaApiService: MetaApiService = new MetaApiService();
