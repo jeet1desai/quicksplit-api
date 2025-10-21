@@ -233,15 +233,63 @@ class AnalyzeServices {
         "requires_private_action": false
         }
 
-        Input: "create group vacation with @John @Jane @Alice"
+        Input: "create goa trip group"
         Output: {
         "intent": "create_group",
         "confidence": 0.95,
         "extracted_data": {
-            "groupName": "vacation",
-            "description": "vacation with friends"
+            "groupName": "goa trip",
+            "description": "goa trip vacation with friends..."
         },
-        "suggested_response": "🏗️ Creating group 'vacation'...",
+        "suggested_response": "🏗️ Creating group 'goa trip'...",
+        "requires_private_action": false
+        }
+
+        Input: "Let's make a group for our office team"
+        Output: {
+        "intent": "create_group",
+        "confidence": 0.9,
+        "extracted_data": {
+            "groupName": "Office Team",
+            "description": "Office team expenses and settlements"
+        },
+        "suggested_response": "🏢 Creating group 'Office Team'...",
+        "requires_private_action": false
+        }
+
+        Input: "New group: Roommates 2024"
+        Output: {
+        "intent": "create_group",
+        "confidence": 0.98,
+        "extracted_data": {
+            "groupName": "Roommates 2024",
+            "description": "Roommates shared expenses 2024"
+        },
+        "suggested_response": "🏠 Creating group 'Roommates 2024'...",
+        "requires_private_action": false
+        }
+
+        Input: "I need a group for our basketball team"
+        Output: {
+        "intent": "create_group",
+        "confidence": 0.92,
+        "extracted_data": {
+            "groupName": "Basketball Team",
+            "description": "Basketball team expenses and fees"
+        },
+        "suggested_response": "🏀 Creating group 'Basketball Team'...",
+        "requires_private_action": false
+        }
+
+        Input: "Create family group"
+        Output: {
+        "intent": "create_group",
+        "confidence": 0.96,
+        "extracted_data": {
+            "groupName": "Family",
+            "description": "Family expenses and shared costs"
+        },
+        "suggested_response": "👨‍👩‍👧‍👦 Creating group 'Family'...",
         "requires_private_action": false
         }
 

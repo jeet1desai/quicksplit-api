@@ -108,8 +108,9 @@ class MessageServices {
       if (!text?.body) return;
       const { extracted_data } = aiAnalysis;
       const groupName = extracted_data?.groupName || 'My Group';
+      const description = extracted_data?.description || '';
 
-      const { group, inviteLink } = await groupService.createGroup(groupName, user._id, extracted_data?.description);
+      const { group, inviteLink } = await groupService.createGroup(groupName, user._id, description);
 
       const response =
         `🎉 Group "${group.name}" created successfully!\n\n` +
