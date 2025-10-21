@@ -32,10 +32,6 @@ const groupSchema = new Schema<any>(
             ref: 'User',
             required: true
           },
-          phoneNumber: {
-            type: String,
-            required: true
-          },
           role: {
             type: String,
             enum: ['admin', 'member'],

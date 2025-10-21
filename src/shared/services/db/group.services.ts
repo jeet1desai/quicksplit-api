@@ -13,7 +13,6 @@ class GroupServices {
       members: [
         {
           user: createdBy,
-          phoneNumber: createdBy,
           role: 'admin',
           isActive: true
         }
@@ -28,6 +27,22 @@ class GroupServices {
       group,
       inviteLink
     };
+  }
+
+  public async joinGroupByCode(code: string, user: any) {
+    const group = await GroupModel.findOne({ code });
+    if (!group) {
+      return null;
+    }
+
+    const isMember = group.members.some((member: any) => member.user.toString() === user._id.toString());
+    if (isMember) {
+      return group;
+    }
+
+    group.members.push({ user: user._id, role: 'member', isActive: true });
+    await group.save();
+    return group;
   }
 
   public async generateUniqueGroupCode(name: string): Promise<string> {

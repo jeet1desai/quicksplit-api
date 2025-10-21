@@ -38,12 +38,12 @@ class MessageServices {
 
       if (maybeStart.startsWith('join:')) {
         const code = maybeStart.split('join:')[1].trim();
-        // const group = await groupService.getGroupByCode(code);
-        // if (!group) {
-        //   await metaApiService.sendMessage(from, `Group not found.`);
-        //   return;
-        // }
-        // await metaApiService.sendMessage(from, `You have joined the group ${group.name}.`);
+        const group = await groupService.joinGroupByCode(code, user);
+        if (!group) {
+          await metaApiService.sendMessage(from, `Group not found.`);
+          return;
+        }
+        await metaApiService.sendMessage(from, `You have joined the group ${group.name}.`);
         return;
       }
 
