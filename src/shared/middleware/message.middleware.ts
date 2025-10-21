@@ -1,9 +1,9 @@
 import { metaApiService } from '@shared/services/whatsapp/meta.services';
 
-export const withTypingIndicator = async (to: string, asyncFunction: () => Promise<any>) => {
+export const withTypingIndicator = async (to: string, messageId: string, asyncFunction: () => Promise<any>) => {
   try {
     // Start typing indicator
-    await metaApiService.sendTypingIndicator(to);
+    await metaApiService.sendTypingIndicator(to, messageId);
 
     // Add a small delay to ensure typing indicator is visible
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -21,7 +21,7 @@ export const withTypingIndicator = async (to: string, asyncFunction: () => Promi
   } finally {
     // Always stop typing indicator
     try {
-      await metaApiService.stopTypingIndicator(to);
+      await metaApiService.stopTypingIndicator(to, messageId);
     } catch (error) {
       console.error('Error stopping typing indicator:', error);
     }
