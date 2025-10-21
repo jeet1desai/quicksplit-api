@@ -5,16 +5,25 @@ export const withTypingIndicator = async (to: string, asyncFunction: () => Promi
     // Start typing indicator
     await metaApiService.sendTypingIndicator(to);
 
+    // Add a small delay to ensure typing indicator is visible
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     // Execute the function
     const result = await asyncFunction();
 
-    // Stop typing indicator
-    await metaApiService.stopTypingIndicator(to);
+    // Add a small delay before stopping the typing indicator
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     return result;
   } catch (error) {
-    // Stop typing indicator even if there's an error
-    await metaApiService.stopTypingIndicator(to);
+    console.error('Error in withTypingIndicator:', error);
     throw error;
+  } finally {
+    // Always stop typing indicator
+    try {
+      await metaApiService.stopTypingIndicator(to);
+    } catch (error) {
+      console.error('Error stopping typing indicator:', error);
+    }
   }
 };

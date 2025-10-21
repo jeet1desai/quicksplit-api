@@ -25,11 +25,11 @@ class MessageServices {
         if (!user) {
           user = await userService.getUserOrCreate(phoneNumber);
           await withTypingIndicator(from, () => metaApiService.sendMessage(from, `Hey there! Welcome to QuickSplit.`));
-          return;
+          return null;
         }
 
         await withTypingIndicator(from, () => metaApiService.sendMessage(from, `Hey there! Welcome back to QuickSplit.`));
-        return;
+        return null;
       }
 
       if (!user) {
@@ -64,7 +64,10 @@ class MessageServices {
         };
       }
 
-      await withTypingIndicator(from, () => this.handlePrivateMessage(message, phoneNumber, user, aiAnalysis));
+      await withTypingIndicator(from, async () => {
+        await this.handlePrivateMessage(message, phoneNumber, user, aiAnalysis);
+        return null;
+      });
     } catch (error) {
       this.log.error('Error processing message', error);
     }
