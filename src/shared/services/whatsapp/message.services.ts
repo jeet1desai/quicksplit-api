@@ -31,6 +31,10 @@ class MessageServices {
         return;
       }
 
+      if (!user) {
+        user = await userService.getUserOrCreate(phoneNumber);
+      }
+
       if (maybeStart.startsWith('join:')) {
         const code = maybeStart.split('join:')[1].trim();
         // const group = await groupService.getGroupByCode(code);
