@@ -39,11 +39,6 @@ export class WhatsAppWebhook {
               if (change.field === 'messages') {
                 const value = change.value;
                 try {
-                  if (value.metadata?.type === 'group') {
-                    await messageService.processGroupEvent(value);
-                    return;
-                  }
-
                   if (value.messages) {
                     for (const message of value.messages) {
                       await messageService.processMessage(message, value.metadata);

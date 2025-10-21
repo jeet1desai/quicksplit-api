@@ -44,28 +44,6 @@ class MetaApiService {
       this.log.error('Error marking message as read:', error.message);
     }
   }
-
-  async getGroupInfo(groupId: string) {
-    try {
-      const response = await axios.get(`${this.baseURL}/${groupId}`, {
-        headers: { Authorization: `Bearer ${this.accessToken}` }
-      });
-      return response.data;
-    } catch (error: any) {
-      this.log.error('Error getting group info:', error.message);
-    }
-  }
-
-  async getGroupMembers(groupId: string) {
-    try {
-      const response = await axios.get(`${this.baseURL}/${groupId}/participants`, {
-        headers: { Authorization: `Bearer ${this.accessToken}` }
-      });
-      return response.data;
-    } catch (error: any) {
-      this.log.error('Error getting group members:', error.message);
-    }
-  }
 }
 
 export const metaApiService: MetaApiService = new MetaApiService();
