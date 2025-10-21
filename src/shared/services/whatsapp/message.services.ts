@@ -84,7 +84,7 @@ class MessageServices {
         // case 'consent_response':
         // case 'settlement_consent_response':
         case 'create_group':
-          await this.handleCreateGroup(message, phoneNumber, user, aiAnalysis);
+          await this.handleCreateGroup(message, user, aiAnalysis);
           break;
         case 'help':
           await metaApiService.sendMessage(from, "Hi! I'm SplitBot.");
@@ -102,16 +102,16 @@ class MessageServices {
     }
   }
 
-  private async handleCreateGroup(message: any, phoneNumber: string, user: any, aiAnalysis: any) {
+  private async handleCreateGroup(message: any, user: any, aiAnalysis: any) {
     const { from, text } = message;
     try {
       if (!text?.body) return;
 
       this.log.info('Creating group', aiAnalysis);
 
-      const { extracted_data } = aiAnalysis;
-      const groupName = extracted_data?.groupName || 'My Group';
-      const description = extracted_data?.description || '';
+      const { extractedData } = aiAnalysis;
+      const groupName = extractedData?.groupName || 'My Group';
+      const description = extractedData?.description || '';
 
       const { group, inviteLink } = await groupService.createGroup(groupName, user._id, description);
 
