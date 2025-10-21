@@ -106,6 +106,9 @@ class MessageServices {
     const { from, text } = message;
     try {
       if (!text?.body) return;
+
+      this.log.info('Creating group', aiAnalysis);
+
       const { extracted_data } = aiAnalysis;
       const groupName = extracted_data?.groupName || 'My Group';
       const description = extracted_data?.description || '';
