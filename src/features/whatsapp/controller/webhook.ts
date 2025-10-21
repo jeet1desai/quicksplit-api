@@ -41,7 +41,9 @@ export class WhatsAppWebhook {
                 try {
                   if (value.messages) {
                     for (const message of value.messages) {
-                      await messageService.processMessage(message, value.metadata);
+                      if (message.type !== 'typing') {
+                        await messageService.processMessage(message, value.metadata);
+                      }
                     }
                   }
                 } catch (error) {

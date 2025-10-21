@@ -47,7 +47,7 @@ class MetaApiService {
 
   async sendTypingIndicator(to: string) {
     try {
-      const payload = { messaging_product: 'whatsapp', to, type: 'typing', typing: { action: 'typing_on' } };
+      const payload = { messaging_product: 'whatsapp', recipient_type: 'individual', to, type: 'typing', typing: { action: 'typing_on' } };
       const response = await axios.post(`${this.baseURL}/${this.phoneNumberId}/messages`, payload, {
         headers: { Authorization: `Bearer ${this.accessToken}`, 'Content-Type': 'application/json' }
       });
@@ -59,7 +59,7 @@ class MetaApiService {
 
   async stopTypingIndicator(to: string) {
     try {
-      const payload = { messaging_product: 'whatsapp', to, type: 'typing', typing: { action: 'typing_off' } };
+      const payload = { messaging_product: 'whatsapp', recipient_type: 'individual', to, type: 'typing', typing: { action: 'typing_off' } };
 
       const response = await axios.post(`${this.baseURL}/${this.phoneNumberId}/messages`, payload, {
         headers: { Authorization: `Bearer ${this.accessToken}`, 'Content-Type': 'application/json' }
