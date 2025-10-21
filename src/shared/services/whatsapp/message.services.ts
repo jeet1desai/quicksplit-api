@@ -4,6 +4,7 @@ import { config } from '@root/config';
 import { metaApiService } from './meta.services';
 import { userService } from '../db/user.services';
 import { analyzeService } from '../gemini/analyze.services';
+import { groupService } from '../db/group.services';
 
 class MessageServices {
   private log: Logger = config.createLogger('Whatsapp service');
@@ -27,6 +28,17 @@ class MessageServices {
         }
 
         await metaApiService.sendMessage(from, `Hey there! Welcome back to QuickSplit.`);
+        return;
+      }
+
+      if (maybeStart.startsWith('join:')) {
+        const code = maybeStart.split('join:')[1].trim();
+        // const group = await groupService.getGroupByCode(code);
+        // if (!group) {
+        //   await metaApiService.sendMessage(from, `Group not found.`);
+        //   return;
+        // }
+        // await metaApiService.sendMessage(from, `You have joined the group ${group.name}.`);
         return;
       }
 
@@ -60,24 +72,22 @@ class MessageServices {
       console.log(aiAnalysis);
 
       switch (aiAnalysis.intent) {
-        case 'balance_check':
-        case 'settlement':
-        case 'settlement_confirm':
-        case 'full_settlement':
-        case 'selective_settlement':
-        case 'partial_settlement':
-        case 'group_settlement':
-        case 'breakdown':
-        case 'export':
-        case 'consent_response':
-        case 'settlement_consent_response':
+        // case 'balance_check':
+        // case 'settlement':
+        // case 'settlement_confirm':
+        // case 'full_settlement':
+        // case 'selective_settlement':
+        // case 'partial_settlement':
+        // case 'group_settlement':
+        // case 'breakdown':
+        // case 'export':
+        // case 'consent_response':
+        // case 'settlement_consent_response':
+        case 'create_group':
+          await this.handleCreateGroup(message, phoneNumber, user, aiAnalysis);
           break;
         case 'help':
-          await metaApiService.sendMessage(
-            from,
-            aiAnalysis.suggestedResponse || "Hi! I'm SplitBot. Here's what you can do:\n\n💰 Check balance: 'balance' or 'how much do I owe?'"
-            // "Hi! I'm SplitBot. Here's what you can do:\n\n💰 Check balance: 'balance' or 'how much do I owe?'\n📊 Get breakdown: 'breakdown' or 'details'\n💸 Settle up: 'settle up' or 'settle all'\n📈 Export to sheets: 'export' or 'sheets'"
-          );
+          await metaApiService.sendMessage(from, aiAnalysis.suggestedResponse || "Hi! I'm SplitBot.");
           break;
         case 'general':
           await metaApiService.sendMessage(from, aiAnalysis.suggestedResponse || "I'm here to help with expense splitting and financial management.");
@@ -89,6 +99,28 @@ class MessageServices {
           );
           break;
       }
+    } catch (error: any) {
+      this.log.error('Error handling private message', error);
+      await metaApiService.sendMessage(from, 'Sorry, I encountered an error processing your request. Please try again.');
+    }
+  }
+
+  private async handleCreateGroup(message: any, phoneNumber: string, user: any, aiAnalysis: any) {
+    const { from, text } = message;
+    try {
+      if (!text?.body) return;
+      const { extracted_data } = aiAnalysis;
+      const groupName = extracted_data?.groupName || 'My Group';
+
+      const { group, inviteLink } = await groupService.createGroup(groupName, user._id, extracted_data?.description);
+
+      const response =
+        `🎉 Group "${group.name}" created successfully!\n\n` +
+        `Invite your friends using this link:\n${inviteLink}\n\n` +
+        `Or share this code: ${group.code}\n\n` +
+        `Friends can join by sending: join:${group.code}`;
+
+      await metaApiService.sendMessage(from, response);
     } catch (error: any) {
       this.log.error('Error handling private message', error);
       await metaApiService.sendMessage(from, 'Sorry, I encountered an error processing your request. Please try again.');

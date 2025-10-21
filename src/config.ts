@@ -50,6 +50,7 @@ class Config {
   public WHATSAPP_API_VERSION: string | undefined;
   public META_PHONE_NUMBER_ID: string | undefined;
   public META_WEBHOOK_URL: string | undefined;
+  public META_PHONE_NUMBER: string | undefined;
 
   public WEB_BASE_URL: string | undefined;
 
@@ -59,8 +60,9 @@ class Config {
   private readonly DEFAULT_WHATSAPP_API_VERSION = 'v19.0';
   private readonly DEFAULT_META_PHONE_NUMBER_ID = '802871279581464';
   private readonly DEFAULT_META_WEBHOOK_URL = 'https://localhost:3000/whatsapp/webhook';
+  private readonly DEFAULT_META_PHONE_NUMBER = '+919875111818';
 
-  private readonly DEFAULT_GOOGLE_GEMINI_API_KEY = 'AIzaSyCZ1WoJhtmY9ZJz7QjG4bYIu4Df2jgVBTY';
+  private readonly DEFAULT_GOOGLE_GEMINI_API_KEY = 'AIzaSyCZ1WoJhtmY9';
   private readonly DEFAULT_GEMINI_MODEL = 'gemini-2.0-flash';
 
   private readonly DEFAULT_WEB_BASE_URL = 'http://localhost:5173';
@@ -87,6 +89,7 @@ class Config {
     this.WHATSAPP_API_VERSION = this.DEFAULT_WHATSAPP_API_VERSION;
     this.META_PHONE_NUMBER_ID = process.env.META_PHONE_NUMBER_ID || this.DEFAULT_META_PHONE_NUMBER_ID;
     this.META_WEBHOOK_URL = process.env.META_WEBHOOK_URL || this.DEFAULT_META_WEBHOOK_URL;
+    this.META_PHONE_NUMBER = process.env.META_PHONE_NUMBER || this.DEFAULT_META_PHONE_NUMBER;
 
     this.COOKIE_SECURE = process.env.COOKIE_SECURE || this.DEFAULT_COOKIE_SECURE;
     this.COOKIE_DOMAIN = process.env.COOKIE_DOMAIN || this.DEFAULT_COOKIE_DOMAIN;

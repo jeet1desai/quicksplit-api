@@ -71,7 +71,7 @@ class AnalyzeServices {
   }
 
   private buildPrompt(message: any, context: any = {}) {
-    const { isGroupMessage = false, groupName = '', userName = '' } = context;
+    const { groupName = '', userName = '' } = context;
 
     return `
         You are QuickSplit Bot, an intelligent expense splitting assistant for WhatsApp groups. 
@@ -79,7 +79,7 @@ class AnalyzeServices {
         CONTEXT:
         - User: ${userName}
         - Group: ${groupName}
-        - Message Type: ${isGroupMessage ? 'Group Chat' : 'Private Chat'}
+        - Message Type: Private Chat
         - Current Message: "${message}"
 
         TASK: Analyze the message and determine the user's intent. Respond with a JSON object containing:
@@ -92,13 +92,15 @@ class AnalyzeServices {
         - "export" - User wants to export data
         - "help" - User needs help/instructions
         - "consent_response" - User is responding to a consent request
+        - "create_group" - User wants to create a new group
+        - "delete_group" - User wants to delete a group
         - "general" - General conversation
         - "unknown" - Cannot determine intent
 
         2. confidence: Number between 0-1 indicating confidence level
 
         3. extracted_data: Object containing:
-        - For expense_log: { amount, description, taggedUsers, currency }
+        - For expense_log: { amount, description, currency }
         - For consent_response: { transactionId, consent }
         - For other intents: relevant extracted information
 
@@ -115,7 +117,6 @@ class AnalyzeServices {
         "extracted_data": {
             "amount": 1000,
             "description": "dinner",
-            "taggedUsers": ["John", "Jane"],
             "currency": "USD"
         },
         "suggested_response": "✅ Expense logged: 1000 for dinner\\nSplit between 3 people (333.33 each)\\nConsent requests sent to tagged members.",
@@ -229,6 +230,41 @@ class AnalyzeServices {
             "targetPerson": "John"
         },
         "suggested_response": "Processing partial payment of $50 to John...",
+        "requires_private_action": false
+        }
+
+        Input: "create group vacation with @John @Jane @Alice"
+        Output: {
+        "intent": "create_group",
+        "confidence": 0.95,
+        "extracted_data": {
+            "groupName": "vacation",
+            "description": "vacation with friends"
+        },
+        "suggested_response": "🏗️ Creating group 'vacation'...",
+        "requires_private_action": false
+        }
+
+        Input: "delete group office"
+        Output: {
+        "intent": "delete_group",
+        "confidence": 0.9,
+        "extracted_data": {
+            "groupName": "office"
+        },
+        "suggested_response": "🗑️ Are you sure you want to delete the group 'office'? This action cannot be undone. Type 'confirm delete office' to proceed.",
+        "requires_private_action": false
+        }
+
+        Input: "confirm delete office"
+        Output: {
+        "intent": "delete_group_confirm",
+        "confidence": 0.95,
+        "extracted_data": {
+            "groupName": "office",
+            "confirmation": true
+        },
+        "suggested_response": "✅ Group 'office' has been deleted successfully.",
         "requires_private_action": false
         }
 
