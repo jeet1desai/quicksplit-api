@@ -87,16 +87,13 @@ class MessageServices {
           await this.handleCreateGroup(message, phoneNumber, user, aiAnalysis);
           break;
         case 'help':
-          await metaApiService.sendMessage(from, aiAnalysis.suggestedResponse || "Hi! I'm SplitBot.");
+          await metaApiService.sendMessage(from, "Hi! I'm SplitBot.");
           break;
         case 'general':
-          await metaApiService.sendMessage(from, aiAnalysis.suggestedResponse || "I'm here to help with expense splitting and financial management.");
+          await metaApiService.sendMessage(from, "I'm here to help with expense splitting and financial management.");
           break;
         default:
-          await metaApiService.sendMessage(
-            from,
-            aiAnalysis.suggestedResponse || "I'm not sure what you're asking for. Type 'help' for available commands."
-          );
+          await metaApiService.sendMessage(from, "I'm not sure what you're asking for. Type 'help' for available commands.");
           break;
       }
     } catch (error: any) {
