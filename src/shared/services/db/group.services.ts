@@ -66,6 +66,10 @@ class GroupServices {
   private generateInviteLink(code: string): string {
     return `https://wa.me/${config.META_PHONE_NUMBER}?text=join:${code}`;
   }
+
+  public async getUserGroups(userId: string) {
+    return GroupModel.find({ 'members.user': userId, 'members.isActive': true, isActive: true }).populate('members.user', 'name phone');
+  }
 }
 
 export const groupService: GroupServices = new GroupServices();

@@ -79,6 +79,20 @@ class MessageServices {
       if (!text?.body) return;
       console.log(aiAnalysis);
 
+      // Check if this is a response to group selection (a number) and we have a pending expense
+      if (text.body.trim().match(/^\d+$/) && user.temp?.expenseData) {
+        await this.processExpenseLogging(message, user, user.temp.expenseData);
+        return;
+      }
+
+      // Handle cancellation
+      if (text.body.trim().toLowerCase() === 'cancel' && user.temp?.expenseData) {
+        user.temp = {};
+        await user.save();
+        await metaApiService.sendMessage(from, "Cancelled the current operation. You can start over.");
+        return;
+      }
+
       switch (aiAnalysis.intent) {
         // case 'balance_check':
         // case 'settlement':
@@ -91,6 +105,9 @@ class MessageServices {
         // case 'export':
         // case 'consent_response':
         // case 'settlement_consent_response':
+        case 'expense_log':
+          await this.processExpenseLogging(message, user, aiAnalysis.extractedData);
+          break;
         case 'create_group':
           await this.handleCreateGroup(message, user, aiAnalysis);
           break;
@@ -107,6 +124,99 @@ class MessageServices {
     } catch (error: any) {
       this.log.error('Error handling private message', error);
       await metaApiService.sendMessage(from, 'Sorry, I encountered an error processing your request. Please try again.');
+    }
+  }
+
+  private async processExpenseLogging(message: any, user: any, extractedData: any) {
+    const { from, text } = message;
+    try {
+      if (!text?.body) return;
+
+      // Handle group selection (when user responds with a number)
+      if (text.body.trim().match(/^\d+$/)) {
+        await this.handleGroupSelection(message, user, user.temp?.expenseData || extractedData);
+        return;
+      }
+
+      // If we get here, it's a new expense logging request
+      const groups = await groupService.getUserGroups(user._id);
+      if (groups.length === 0) {
+        await metaApiService.sendMessage(from, "You're not a member of any groups. Create a group first using the 'create group' command.");
+        return;
+      }
+
+      // Store the groups and expense data in temp for the next step
+      user.temp = { ...user.temp, groups, expenseData: extractedData };
+      await user.save();
+
+      // Show group selection
+      let response = '📋 *Your Groups*\n\n';
+      response += groups.map((group: any, index: number) => 
+        `${index + 1}. ${group.name} (${group.members.length} members)`
+      ).join('\n');
+      
+      response += '\n\nPlease reply with the number of the group for this expense.';
+      
+      await metaApiService.sendMessage(from, response);
+      
+      await metaApiService.sendMessage(from, response);
+      
+    } catch (error: any) {
+      this.log.error('Error processing expense logging', error);
+      await metaApiService.sendMessage(from, 'Sorry, I encountered an error processing your request. Please try again.');
+    }
+  }
+
+  private async handleGroupSelection(message: any, user: any, extractedData: any) {
+    const { from, text } = message;
+    
+    try {
+      const selectedIndex = parseInt(text.body.trim(), 10) - 1;
+      const groups = user.temp?.groups || [];
+      
+      if (isNaN(selectedIndex) || selectedIndex < 0 || selectedIndex >= groups.length) {
+        await metaApiService.sendMessage(from, '❌ Invalid selection. Please try again.');
+        return;
+      }
+      
+      const selectedGroup = groups[selectedIndex];
+      const expenseData = user.temp?.expenseData || {};
+      
+      // Process the expense with the selected group
+      // Here you would typically save the expense to the database
+      // For now, we'll just send a confirmation
+      
+      const amount = parseFloat(expenseData.amount) || 0;
+      const description = expenseData.description || 'Expense';
+      const currency = selectedGroup.currency || 'INR';
+      
+      // Calculate split amount per member (including the payer)
+      const splitAmount = amount / selectedGroup.members.length;
+      
+      // Build response
+      let response = `💸 *Expense Logged*\n\n`;
+      response += `*Group:* ${selectedGroup.name}\n`;
+      response += `*Amount:* ${currency} ${amount.toFixed(2)}\n`;
+      response += `*Description:* ${description}\n\n`;
+      response += `*Split:* ${currency} ${splitAmount.toFixed(2)} per person\n\n`;
+      response += `*Paid by:* ${user.name}\n`;
+      
+      // List all members and their status
+      response += '*Members:*\n';
+      selectedGroup.members.forEach((member: any) => {
+        const status = member.user._id.toString() === user._id.toString() ? ' (You - paid)' : ' (owes)';
+        response += `- ${member.user.name}${status}\n`;
+      });
+      
+      // Clear temp data
+      user.temp = {};
+      await user.save();
+      
+      await metaApiService.sendMessage(from, response);
+      
+    } catch (error) {
+      this.log.error('Error handling group selection', error);
+      await metaApiService.sendMessage(from, '❌ Error processing your request. Please try again.');
     }
   }
 
